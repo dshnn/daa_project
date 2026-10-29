@@ -1,0 +1,7 @@
+# .gitignore
+/src/
+/tests/
+/docs/
+/configs/
+*.pyc
+__pycache__/
