@@ -1,0 +1,29 @@
+frontend/
+  index.html
+  app.js
+  style.css
+backend/
+  pom.xml
+  mvnw
+  mvnw.cmd
+  .mvn/wrapper/maven-wrapper.properties
+  src/main/java/com/sentinel/
+    Main.java
+    db/Database.java
+    model/NetworkEntity.java
+    model/DeviceEntity.java
+    model/ConnectionEntity.java
+    model/SimulationEntity.java
+    model/SimulationEventEntity.java
+    algorithm/Graph.java
+    algorithm/Algorithms.java
+    simulation/Simulation.java
+    server/Json.java
+    server/ApiException.java
+    server/ApiHandler.java
+  src/main/resources/simplelogger.properties
+  src/test/java/com/sentinel/
+    SentinelTest.java
+    DatabasePersistenceTest.java
+README.md
+LICENSE

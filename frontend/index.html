@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENTINEL - Network Attack Simulator</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/cytoscape@3.30.2/dist/cytoscape.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>SENTINEL</h2>
+                <p class="subtitle">Network Attack Simulator</p>
+            </div>
+            <nav class="nav">
+                <button class="nav-btn active" data-page="dashboard">Dashboard</button>
+                <button class="nav-btn" data-page="network-lab">Network Lab</button>
+                <button class="nav-btn" data-page="attack-simulator">Attack Simulator</button>
+                <button class="nav-btn" data-page="algorithm-lab">Algorithm Lab</button>
+                <button class="nav-btn" data-page="simulation-history">Simulation History</button>
+            </nav>
+            <div class="sidebar-footer">
+                <small>Educational Simulation Only</small>
+            </div>
+        </aside>
+        <main class="main-content">
+            <!-- Dashboard -->
+            <section id="page-dashboard" class="page active">
+                <header class="page-header">
+                    <h1>Dashboard</h1>
+                </header>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Saved Networks</h3>
+                        <p class="stat-value" id="stat-networks">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Devices</h3>
+                        <p class="stat-value" id="stat-devices">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Simulations</h3>
+                        <p class="stat-value" id="stat-sims">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Latest Simulation</h3>
+                        <p class="stat-value" id="stat-latest">-</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2>Quick Navigation</h2>
+                    <div class="quick-nav">
+                        <button class="btn" onclick="navigateTo('network-lab')">Go to Network Lab</button>
+                        <button class="btn" onclick="navigateTo('attack-simulator')">Go to Attack Simulator</button>
+                        <button class="btn" onclick="navigateTo('algorithm-lab')">Go to Algorithm Lab</button>
+                        <button class="btn" onclick="navigateTo('simulation-history')">View History</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Network Lab -->
+            <section id="page-network-lab" class="page">
+                <header class="page-header">
+                    <h1>Network Lab</h1>
+                </header>
+                <div class="grid-2">
+                    <div class="card">
+                        <h2>Graph Editor (Cytoscape.js)</h2>
+                        <div class="editor-controls">
+                            <input type="text" id="device-label" placeholder="Device name">
+                            <button class="btn" id="btn-add-node">Add Device</button>
+                            <button class="btn" id="btn-add-edge">Add Connection (select 2 nodes)</button>
+                            <input type="number" id="edge-weight" placeholder="Weight" value="1" step="0.1">
+                            <button class="btn btn-danger" id="btn-delete">Delete Selected</button>
+                        </div>
+                        <div id="cy" class="cy-container"></div>
+                    </div>
+                    <div class="card">
+                        <h2>Save/Load Network</h2>
+                        <div class="form-group">
+                            <input type="text" id="network-name" placeholder="Network name">
+                            <button class="btn" id="btn-save-network">Save Network</button>
+                        </div>
+                        <h3>Saved Networks</h3>
+                        <div id="saved-networks" class="list"></div>
+                        <h3>Current Network Info</h3>
+                        <p>Devices: <span id="info-devices">0</span> | Connections: <span id="info-conns">0</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Attack Simulator -->
+            <section id="page-attack-simulator" class="page">
+                <header class="page-header">
+                    <h1>Attack Simulator</h1>
+                    <p class="note">This is a SYNTHETIC educational simulation. Do not use for real networks.</p>
+                </header>
+                <div class="grid-2">
+                    <div class="card">
+                        <h2>Configuration</h2>
+                        <div class="form-group">
+                            <label>Select Network</label>
+                            <select id="sim-network"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Initial Compromised Device</label>
+                            <select id="sim-initial"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Propagation Probability (0-1)</label>
+                            <input type="number" id="sim-prob" value="0.5" min="0" max="1" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Random Seed (for reproducibility)</label>
+                            <input type="number" id="sim-seed" placeholder="e.g., 12345">
+                        </div>
+                        <div class="form-group">
+                            <label>Containment Strategy</label>
+                            <select id="sim-strategy">
+                                <option value="none">None</option>
+                                <option value="initial-node isolation">Initial-node isolation</option>
+                                <option value="greedy containment">Greedy containment (highest degree)</option>
+                                <option value="manual containment">Manual containment</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="manual-group" style="display:none;">
+                            <label>Devices to Isolate (select in graph or enter IDs)</label>
+                            <input type="text" id="manual-isolated" placeholder="Comma-separated device IDs">
+                        </div>
+                        <button class="btn" id="btn-run-sim">Start Simulation</button>
+                        <button class="btn" id="btn-reset-sim">Reset</button>
+                    </div>
+                    <div class="card">
+                        <h2>Simulation View</h2>
+                        <div id="sim-stats" class="sim-stats">
+                            <span>Compromised: <strong id="sim-comp">0</strong></span>
+                            <span>Isolated: <strong id="sim-iso">0</strong></span>
+                            <span>Rounds: <strong id="sim-rounds">0</strong></span>
+                            <span>Exec Time: <strong id="sim-time">0</strong> ms</span>
+                        </div>
+                        <div id="sim-cy" class="cy-container"></div>
+                        <div class="card" style="margin-top:10px;">
+                            <h3>Events</h3>
+                            <div id="sim-events" class="events"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Algorithm Lab -->
+            <section id="page-algorithm-lab" class="page">
+                <header class="page-header">
+                    <h1>Algorithm Lab (DAA)</h1>
+                </header>
+                <div class="card">
+                    <h2>Select Network</h2>
+                    <select id="algo-network"></select>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <h2>BFS</h2>
+                        <label>Start Device</label>
+                        <select id="bfs-start"></select>
+                        <button class="btn" id="btn-bfs">Run BFS</button>
+                        <div class="result" id="res-bfs"></div>
+                    </div>
+                    <div class="card">
+                        <h2>DFS</h2>
+                        <label>Start Device</label>
+                        <select id="dfs-start"></select>
+                        <button class="btn" id="btn-dfs">Run DFS</button>
+                        <div class="result" id="res-dfs"></div>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <h2>Dijkstra's Algorithm</h2>
+                        <label>Start Device</label>
+                        <select id="dij-start"></select>
+                        <label>End Device</label>
+                        <select id="dij-end"></select>
+                        <button class="btn" id="btn-dij">Run Dijkstra</button>
+                        <div class="result" id="res-dij"></div>
+                    </div>
+                    <div class="card">
+                        <h2>Prim's Algorithm (MST)</h2>
+                        <button class="btn" id="btn-prim">Run Prim</button>
+                        <div class="result" id="res-prim"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Simulation History -->
+            <section id="page-simulation-history" class="page">
+                <header class="page-header">
+                    <h1>Simulation History</h1>
+                </header>
+                <div class="card">
+                    <h2>Saved Simulations</h2>
+                    <div id="history-list" class="list"></div>
+                </div>
+                <div class="card">
+                    <h2>Simulation Details</h2>
+                    <div id="history-details"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

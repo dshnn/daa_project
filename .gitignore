@@ -1,0 +1,18 @@
+# .gitignore
+/src/
+/tests/
+/docs/
+/configs/
+*.pyc
+__pycache__/
+
+# Java / Maven
+backend/target/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal
